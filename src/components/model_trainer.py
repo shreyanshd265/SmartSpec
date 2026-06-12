@@ -1,0 +1,115 @@
+import os
+import sys
+from dataclasses import dataclass
+
+from catboost import CatBoostRegressor
+from sklearn.ensemble import (
+    AdaBoostRegressor,
+    GradientBoostingRegressor,
+    RandomForestRegressor,
+)
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.tree import DecisionTreeRegressor
+from xgboost import XGBRegressor
+from sklearn.linear_model import Lasso,Ridge
+from src.exception import CustomException
+from src.logger import logging
+from sklearn.model_selection import GridSearchCV
+
+from src.utils import save_object,evaluate_models
+
+@dataclass
+class ModelTrainerConfig:
+    model_file_path=os.path.join('model.pkl')
+
+class ModelTrainer:
+    def __init__(self):
+        self.model_trainer_config=ModelTrainerConfig()
+
+    def initiate_model_training(self,train_arr,test_arr):
+        try:
+            logging.info("dividing into input and output independent and dependent features")
+            x_train,x_test,y_train,y_test=(
+                train_arr[:,:-1],
+                test_arr[:,:-1],
+                train_arr[:,-1],
+                test_arr[:,-1]
+            )
+            models={
+                "Linear Regression":LinearRegression(),
+                "K Neighbor" : KNeighborsRegressor(),
+                "Decision Tree": DecisionTreeRegressor(),
+                "XGBRegressor":XGBRegressor(),
+                "AdaBoost Regressor":AdaBoostRegressor(),
+                "Gradient Boosting":GradientBoostingRegressor(),
+                "Random Forest":RandomForestRegressor(),
+                "RdigeRegression":Ridge(),
+                "LassoRegression":Lasso(),
+                "CatBoosting Regressor": CatBoostRegressor()
+            }
+            params={
+                "Decision Tree": {
+                    'criterion':['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
+                    'splitter':['best','random'],
+                     'max_features':['sqrt','log2'],
+                },
+                "Random Forest":{
+                     'criterion':['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
+                 
+                     'max_features':['sqrt','log2',None],
+                    'n_estimators': [8,16,32,64,128,256]
+                },
+                "Gradient Boosting":{
+                    # 'loss':['squared_error', 'huber', 'absolute_error', 'quantile'],
+                    'learning_rate':[.1,.01,.05,.001],
+                    'subsample':[0.6,0.7,0.75,0.8,0.85,0.9],
+                   ##  'criterion':['squared_error', 'friedman_mse'],
+                    ## 'max_features':['auto','sqrt','log2'],
+                    'n_estimators': [8,16,32,64,128,256]
+                },
+                "Linear Regression":{},
+                "XGBRegressor":{
+                    'learning_rate':[.1,.01,.05,.001],
+                    'n_estimators': [8,16,32,64,128,256]
+                },
+                "CatBoosting Regressor":{
+                    'depth': [6,8,10],
+                    'learning_rate': [0.01, 0.05, 0.1],
+                    'iterations': [30, 50, 100]
+                },
+                "AdaBoost Regressor":{
+                    'learning_rate':[.1,.01,0.5,.001],
+                     'loss':['linear','square','exponential'],
+                    'n_estimators': [8,16,32,64,128,256]
+                },
+                "K Neighbor": {'n_neighbors': [3, 5, 7, 9]},
+                "RdigeRegression": {'alpha': [0.01, 0.1, 1.0]},
+                "LassoRegression": {'alpha': [0.0001, 0.001, 0.01]}
+                
+            }
+
+            model_report=evaluate_models(x_train=x_train,x_test=x_test,y_train=y_train,y_test=y_test,model=models,para=params)
+            best_model_score=max(sorted(model_report.values()))
+            best_model_name=[k for k,v in model_report.items() if v==best_model_score][0]
+            model_obj=models[best_model_name]
+            if best_model_score<0.6:
+                raise CustomException("no best model found for the given dataset",sys)
+            else:
+                logging.info("best model for dataset has been found successfully")
+            
+            save_object(
+                file_path=self.model_trainer_config.model_file_path,
+                obj=model_obj
+            )
+            y_pred=model_obj.predict(x_test)
+            r2=r2_score(y_test,y_pred)
+            return r2
+        except Exception as e:
+            raise CustomException(e,sys)
+
+
+
+
+

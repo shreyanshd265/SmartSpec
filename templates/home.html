@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predict Price — SmartSpec</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0a0a0f;
+            --surface: #13131a;
+            --surface2: #1a1a24;
+            --border: #1e1e2e;
+            --accent: #6c63ff;
+            --accent-light: #a29bfe;
+            --text: #e8e8f0;
+            --muted: #6b6b80;
+            --success: #00d084;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        nav {
+            padding: 1.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent-light);
+            text-decoration: none;
+        }
+
+        .nav-link {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover { color: var(--text); }
+
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 3rem 2rem 5rem;
+        }
+
+        .page-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .page-header h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .form-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem;
+        }
+
+        .form-section-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent-light);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--muted);
+        }
+
+        input, select {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            padding: 0.75rem 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            width: 100%;
+        }
+
+        input::placeholder { color: var(--muted); }
+
+        input:focus, select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(108,99,255,0.15);
+        }
+
+        select option { background: var(--surface2); }
+
+        .submit-btn {
+            width: 100%;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 1rem;
+            transition: all 0.2s;
+            box-shadow: 0 0 20px rgba(108,99,255,0.25);
+            margin-top: 0.5rem;
+        }
+
+        .submit-btn:hover {
+            background: #7c74ff;
+            transform: translateY(-1px);
+            box-shadow: 0 0 30px rgba(108,99,255,0.4);
+        }
+
+        .result-card {
+            margin-top: 2rem;
+            background: linear-gradient(135deg, rgba(108,99,255,0.1) 0%, rgba(0,208,132,0.08) 100%);
+            border: 1px solid rgba(108,99,255,0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .result-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .result-price {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--success);
+            letter-spacing: -1px;
+        }
+
+        .result-note {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 0.75rem;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            nav { padding: 1rem 1.5rem; }
+            .form-card { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="logo">SmartSpec</a>
+        <a href="/" class="nav-link">← Back to Home</a>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Predict Laptop Price</h1>
+            <p>Fill in the specifications below to get an estimated market price.</p>
+        </div>
+
+        <div class="form-card">
+            <form action="/predictdata" method="post">
+
+                <div class="form-section-title">Basic Info</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="Model">Laptop Model</label>
+                        <input type="text" id="Model" name="Model" placeholder="e.g. HP Pavilion 15" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Rating">Rating (out of 5)</label>
+                        <input type="number" id="Rating" name="Rating" placeholder="e.g. 4.2" step="0.1" min="1" max="5" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="OS">Operating System</label>
+                        <input type="text" id="OS" name="OS" placeholder="e.g. Windows 11 Home" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Warranty">Warranty</label>
+                        <select id="Warranty" name="Warranty" required>
+                            <option value="" disabled selected>Select warranty</option>
+                            <option value="1 Year Warranty">1 Year</option>
+                            <option value="2 Year Warranty">2 Years</option>
+                            <option value="3 Year Warranty">3 Years</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-section-title">Display & Performance</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="Display">Display</label>
+                        <input type="text" id="Display" name="Display" placeholder="e.g. 15.6 inches, 1920 x 1080 pixels" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Generation">Processor Generation</label>
+                        <input type="text" id="Generation" name="Generation" placeholder="e.g. 12th Gen Intel Core i5" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Core">Core Configuration</label>
+                        <input type="text" id="Core" name="Core" placeholder="e.g. Octa Core, 16 Threads" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Graphics">Graphics Card</label>
+                        <input type="text" id="Graphics" name="Graphics" placeholder="e.g. NVIDIA GeForce RTX 3050" required>
+                    </div>
+                </div>
+
+                <div class="form-section-title">Memory & Storage</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="Ram">RAM</label>
+                        <input type="text" id="Ram" name="Ram" placeholder="e.g. 16 GB DDR5" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="SSD">Storage</label>
+                        <input type="text" id="SSD" name="SSD" placeholder="e.g. 512 GB SSD" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Predict Price →</button>
+            </form>
+
+            {% if results %}
+            <div class="result-card">
+                <div class="result-label">Estimated Market Price</div>
+                <div class="result-price">₹{{ "{:,.0f}".format(results) }}</div>
+                <div class="result-note">Based on current market data · Prices may vary by retailer</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
