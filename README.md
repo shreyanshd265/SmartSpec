@@ -2,7 +2,7 @@
 
 SmartSpec is a machine learning web app that predicts the price of a laptop based on its specifications like RAM, SSD, processor generation, graphics card, display, brand, etc.
 
-🔗 Live: [smartspec.onrender.com](#)
+🔗 Live: https://smartspec-3x3m.onrender.com
 
 ## About
 
